@@ -4,7 +4,7 @@ package com.lime.zeromvc;
 import java.util.Map;
 
 
-public class Zero<TCommandKey, TMediatorKey> implements IZero<TCommandKey, TMediatorKey> {
+public class Zero<TCommandKey, TMediatorKey> {
     public Spine<TCommandKey> control;
     public ZeroModel model;
     public Spine<TMediatorKey> view;
@@ -17,47 +17,39 @@ public class Zero<TCommandKey, TMediatorKey> implements IZero<TCommandKey, TMedi
         model = new ZeroModel();
     }
 
-    @Override
-    public void addCommand(TCommandKey key, Class<?> commandClass) {
-        control.addListener(key, commandClass);
+    public void addCommand(TCommandKey key, Class<? extends Command> commandClass) {
+        control.addListener(key, (Class<Neure>) commandClass.asSubclass(Neure.class));
     }
 
-    @Override
-    public void removeCommand(TCommandKey key, Class<?> commandClass) {
-        control.addListener(key, commandClass);
-
-    }
-
-    @Override
-    public void addMediator(TMediatorKey key, Class<?> mediatorClass) {
-        view.addListener(key, mediatorClass);
+    public void removeCommand(TCommandKey key, Class<Command> commandClass) {
+        control.removeListener(key, (Class<Neure>) commandClass.asSubclass(Neure.class));
 
     }
 
-    @Override
+    public void addMediator(TMediatorKey key, Class<? extends Neure> mediatorClass) {
+        view.addListener(key, (Class<Neure>) mediatorClass.asSubclass(Neure.class));
+
+    }
+
     public void removeMediator(TMediatorKey key, Class<Mediator> mediatorClass) {
-        view.addListener(key, mediatorClass.asSubclass(Neure.class));
+        view.removeListener(key, (Class<Neure>) mediatorClass.asSubclass(Neure.class));
 
     }
 
-    @Override
     public void inactivate(TMediatorKey key) {
         view.notify(key, false);
     }
 
-    @Override
     public void activate(TMediatorKey key) {
         view.notify(key, true);
 
     }
 
-    @Override
     public void command(TCommandKey key, Object date) {
         control.notify(key, date);
 
     }
 
-    @Override
     public void command(TCommandKey key) {
         control.notify(key);
 

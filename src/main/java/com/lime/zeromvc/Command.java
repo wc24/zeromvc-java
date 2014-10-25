@@ -3,7 +3,7 @@ package com.lime.zeromvc;
 /**
  * Created by linming on 14-10-22.
  */
-public abstract class Command<TCommandKey, TMediatorKey, TContent> extends ZeroNeure implements Neure<Zero<TCommandKey, TMediatorKey>, TCommandKey, TContent> {
+public abstract class Command<TCommandKey, TMediatorKey, TContent> extends Neure<Zero<TCommandKey, TMediatorKey>, TCommandKey, TContent> {
 
     private TCommandKey type;
     private Zero<TCommandKey, TMediatorKey> zero;
@@ -26,7 +26,6 @@ public abstract class Command<TCommandKey, TMediatorKey, TContent> extends ZeroN
 
     public void init(Zero<TCommandKey, TMediatorKey> zero, TCommandKey type) {
         this.zero = zero;
-        _zero= zero;
         this.type = type;
     }
 
@@ -37,4 +36,9 @@ public abstract class Command<TCommandKey, TMediatorKey, TContent> extends ZeroN
     public void command(TCommandKey key) {
         zero.command(key);
     }
+
+    public <TProxy extends Proxy> TProxy getProxy(Class<TProxy> proxyClass) {
+        return zero.model.getProxy(proxyClass);
+    }
+
 }

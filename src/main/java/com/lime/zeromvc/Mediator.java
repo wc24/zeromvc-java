@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public abstract class Mediator<TCommandKey, TMediatorKey> extends ZeroNeure implements Neure<Zero<TCommandKey, TMediatorKey>, TMediatorKey, Boolean> {
+public abstract class Mediator<TCommandKey, TMediatorKey> extends Neure<Zero<TCommandKey, TMediatorKey>, TMediatorKey, Boolean> {
 
 
     private Object group;
@@ -15,6 +15,10 @@ public abstract class Mediator<TCommandKey, TMediatorKey> extends ZeroNeure impl
 
     public Mediator() {
         pool = new ArrayList<Proxy>();
+    }
+
+    public <TProxy extends Proxy> TProxy getProxy(Class<TProxy> proxyClass) {
+        return zero.model.getProxy(proxyClass);
     }
 
     @Override
@@ -45,7 +49,6 @@ public abstract class Mediator<TCommandKey, TMediatorKey> extends ZeroNeure impl
 
     public void init(Zero<TCommandKey, TMediatorKey> zero, TMediatorKey type) {
         this.zero = zero;
-        _zero = zero;
         this.type = type;
     }
 
