@@ -1,7 +1,10 @@
 package com.lime.zeromvc;
 
 /**
- * Created by linming on 14-10-22.
+ * 指令类
+ * @param <TCommandKey>  命令枚举类型
+ * @param <TMediatorKey> 中介枚举类型
+ * @param <TContent> 指令参数类型
  */
 public abstract class Command<TCommandKey, TMediatorKey, TContent> implements IExecute<Zero<TCommandKey, TMediatorKey>, TCommandKey, TContent> {
 
@@ -18,7 +21,10 @@ public abstract class Command<TCommandKey, TMediatorKey, TContent> implements IE
         zero.inactivate(key);
     }
 
-    protected void dispose() {
+    /**
+     *
+     */
+    public void dispose() {
         zero.control.dispose(type);
     }
 

@@ -13,22 +13,28 @@ import java.util.Map;
 public class Zero<TCommandKey, TMediatorKey> {
 
     /**
-     *
+     * 控制器
+     * (c)
+     * 将相关的命令类反射对应命令枚举 形成控制器
      */
     public Observer<TCommandKey> control;
 
     /**
-     *
+     * 数据模形
+     * (m)
+     * 将相关的数据代理进行单例化管理 形成数据模形
      */
     public ProxyPool model;
 
     /**
-     *
+     * 视图管理器
+     * (V)
+     * 将相关的视图中介类反射对应中介枚举 形成视图管理器
      */
     public Observer<TMediatorKey> view;
 
     /**
-     *
+     * 将中介进行分组，同组的中介只会有一个在激活状态
      */
     public Map<Object, TMediatorKey> mediatorKeyGroup;
 

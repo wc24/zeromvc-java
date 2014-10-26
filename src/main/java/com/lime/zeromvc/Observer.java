@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class Observer<TKey> {
 
-    protected final Object target;
+    protected Object target;
     protected Map<TKey, List<Class<? extends IExecute>>> pool;
     protected Map<TKey, IExecute<Object, TKey, Object>> instancePool;
 

@@ -3,15 +3,20 @@ package com.lime.zeromvc;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 数据代理管理类
+ * 每一个管理类中每一个代理类只有一个实例
+ * 使用管理类访问代理类时！代理类的实例就像创建
+ */
 public class ProxyPool {
 
     /**
-     *
+     * 存放数据代理容器
      */
     public Map<Class<? extends Proxy>, Proxy> pool;
 
     /**
-     *
+     * 数据代理管理类
      */
     public ProxyPool() {
         pool = new HashMap<Class<? extends Proxy>, Proxy>();
@@ -19,6 +24,7 @@ public class ProxyPool {
 
     /**
      * 释放 数据代理对象
+     *
      * @param proxy
      * @return
      */
