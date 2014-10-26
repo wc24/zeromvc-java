@@ -143,9 +143,9 @@ public class Observer<TKey> {
                     neure.execute(data);
                 } else try {
                     neure = classType.newInstance();
+                    instancePool.put(type, neure);
                     neure.init(target, type);
                     neure.execute(data);
-                    instancePool.put(type, neure);
                     out++;
                 } catch (InstantiationException e) {
                     e.printStackTrace();
