@@ -1,55 +1,124 @@
 package com.lime.zeromvc;
 
-
 import java.util.Map;
 
+/**
+ * 零框架 主类
+ *
+ * @param <TCommandKey>  命令枚举类型
+ * @param <TMediatorKey> 中介枚举类型
+ * @author lime
+ */
 
 public class Zero<TCommandKey, TMediatorKey> {
-    public Spine<TCommandKey> control;
-    public ZeroModel model;
-    public Spine<TMediatorKey> view;
 
+    /**
+     *
+     */
+    public Observer<TCommandKey> control;
+
+    /**
+     *
+     */
+    public ProxyPool model;
+
+    /**
+     *
+     */
+    public Observer<TMediatorKey> view;
+
+    /**
+     *
+     */
     public Map<Object, TMediatorKey> mediatorKeyGroup;
 
+    /**
+     *
+     */
     public Zero() {
-        control = new Spine<TCommandKey>(this);
-        view = new Spine<TMediatorKey>(this);
-        model = new ZeroModel();
+        control = new Observer<TCommandKey>(this);
+        view = new Observer<TMediatorKey>(this);
+        model = new ProxyPool();
     }
 
+    /**
+     * 添加命令
+     *
+     * @param key          命令的枚举值
+     * @param commandClass 所要添加的命令类的反射对象(如 Object.class)
+     */
     public void addCommand(TCommandKey key, Class<? extends Command> commandClass) {
-        control.addListener(key, (Class<Neure>) commandClass.asSubclass(Neure.class));
+        control.addListener(key, commandClass);
     }
 
-    public void removeCommand(TCommandKey key, Class<Command> commandClass) {
-        control.removeListener(key, (Class<Neure>) commandClass.asSubclass(Neure.class));
-
-    }
-
-    public void addMediator(TMediatorKey key, Class<? extends Neure> mediatorClass) {
-        view.addListener(key, (Class<Neure>) mediatorClass.asSubclass(Neure.class));
-
-    }
-
-    public void removeMediator(TMediatorKey key, Class<Mediator> mediatorClass) {
-        view.removeListener(key, (Class<Neure>) mediatorClass.asSubclass(Neure.class));
+    /**
+     * 移除命令
+     *
+     * @param key          命令的枚举值
+     * @param commandClass 所要添加的命令类的反射对象(如 Object.class)
+     */
+    public void removeCommand(TCommandKey key, Class<? extends Command> commandClass) {
+        control.removeListener(key, commandClass);
 
     }
 
+    /**
+     * 添加中介
+     *
+     * @param key           中介的枚举值
+     * @param mediatorClass 所要添加的中介类的反射对象(如 Object.class)
+     */
+    public void addMediator(TMediatorKey key, Class<? extends Mediator> mediatorClass) {
+        view.addListener(key, mediatorClass);
+
+    }
+
+    /**
+     * 移除中介
+     *
+     * @param key           中介的枚举值
+     * @param mediatorClass 所要添加的中介类的反射对象(如 Object.class)
+     */
+    public void removeMediator(TMediatorKey key, Class<? extends Mediator> mediatorClass) {
+        view.removeListener(key, mediatorClass);
+
+    }
+
+    /**
+     * 灭活中介
+     *
+     * @param key 中介的枚举值
+     */
     public void inactivate(TMediatorKey key) {
         view.notify(key, false);
     }
 
+    /**
+     * 激活中介
+     *
+     * @param key 中介的枚举值
+     */
     public void activate(TMediatorKey key) {
         view.notify(key, true);
 
     }
 
+    /**
+     * 派发命令
+     *
+     * @param key  命令的枚举值
+     * @param date 派发命令的参数数据
+     */
     public void command(TCommandKey key, Object date) {
         control.notify(key, date);
 
     }
 
+    /**
+     * 派发命令
+     *
+     * @param key 命令的枚举值
+     */
     public void command(TCommandKey key) {
         control.notify(key);
 

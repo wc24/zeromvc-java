@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public abstract class Mediator<TCommandKey, TMediatorKey> extends Neure<Zero<TCommandKey, TMediatorKey>, TMediatorKey, Boolean> {
+public abstract class Mediator<TCommandKey, TMediatorKey> implements IExecute<Zero<TCommandKey, TMediatorKey>, TMediatorKey, Boolean> {
 
 
     private Object group;
@@ -13,14 +13,27 @@ public abstract class Mediator<TCommandKey, TMediatorKey> extends Neure<Zero<TCo
 
     private List<Proxy> pool;
 
+    /**
+     *
+     */
     public Mediator() {
         pool = new ArrayList<Proxy>();
     }
 
+    /**
+     *
+     * @param proxyClass
+     * @param <TProxy>
+     * @return
+     */
     public <TProxy extends Proxy> TProxy getProxy(Class<TProxy> proxyClass) {
         return zero.model.getProxy(proxyClass);
     }
 
+    /**
+     *
+     * @param isActive
+     */
     @Override
     public void execute(Boolean isActive) {
         if (isActive) {
@@ -47,26 +60,44 @@ public abstract class Mediator<TCommandKey, TMediatorKey> extends Neure<Zero<TCo
 
     }
 
+    /**
+     *
+     * @param zero
+     * @param type
+     */
     public void init(Zero<TCommandKey, TMediatorKey> zero, TMediatorKey type) {
         this.zero = zero;
         this.type = type;
     }
 
+    /**
+     *
+     * @param key
+     * @param date
+     */
     public void command(TCommandKey key, Object date) {
         zero.command(key, date);
     }
 
+    /**
+     *
+     * @param key
+     */
     public void command(TCommandKey key) {
         zero.command(key);
     }
 
+    /**
+     *
+     * @param proxy
+     */
     public void addProxy(Proxy proxy) {
         proxy.bind(this);
         pool.add(proxy);
     }
 
     protected void dispose() {
-        zero.view.release(type);
+        zero.view.dispose(type);
         zero.inactivate(type);
     }
 
