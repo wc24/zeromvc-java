@@ -108,12 +108,7 @@ public class Observer<TKey> {
      * @return 是否存在监听
      */
     public boolean hasListener(TKey type, Class<? extends IExecute> classType) {
-        if (IExecute.class.isAssignableFrom(classType)) {
-            return pool.containsKey(type) && pool.get(type).contains(classType);
-        } else {
-            System.out.println("[LIME] classType must be IObserverExecute subclasses ");
-            return false;
-        }
+        return pool.containsKey(type) && pool.get(type).contains(classType);
     }
 
     /**
