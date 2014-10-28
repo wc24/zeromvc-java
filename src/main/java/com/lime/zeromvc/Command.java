@@ -63,5 +63,6 @@ public abstract class Command<TCommandKey, TMediatorKey, TContent> implements IE
     public <TProxy extends Proxy> TProxy getProxy(Class<TProxy> proxyClass) {
         return zero.model.getProxy(proxyClass);
     }
+    
 
 }
