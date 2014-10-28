@@ -7,7 +7,7 @@ public class TestCommand extends Command<CommandEnum, MediatorEnum, TestVo> {
 
     public TestCommand(){
 
-        System.out.println("cctvcctvcctvcctvcctvcctvcctvcctv");
+        System.out.println("----------------TestCommand---------------");
 
     }
 
