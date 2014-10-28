@@ -2,15 +2,16 @@ package com.lime.zeromvc;
 
 /**
  * 指令类
+ *
  * @param <TCommandKey>  命令枚举类型
  * @param <TMediatorKey> 中介枚举类型
- * @param <TContent> 指令参数类型
+ * @param <TContent>     指令参数类型
  */
 public abstract class Command<TCommandKey, TMediatorKey, TContent> implements IExecute<Zero<TCommandKey, TMediatorKey>, TCommandKey, TContent> {
 
     private TCommandKey type;
     private Zero<TCommandKey, TMediatorKey> zero;
-
+    protected abstract void init();
 
     protected void activate(TMediatorKey key) {
         zero.activate(key);
@@ -29,17 +30,17 @@ public abstract class Command<TCommandKey, TMediatorKey, TContent> implements IE
     }
 
     /**
-     *
      * @param zero
      * @param type
      */
     public void init(Zero<TCommandKey, TMediatorKey> zero, TCommandKey type) {
         this.zero = zero;
         this.type = type;
+        init();
     }
 
+
     /**
-     *
      * @param key
      * @param date
      */
@@ -48,7 +49,6 @@ public abstract class Command<TCommandKey, TMediatorKey, TContent> implements IE
     }
 
     /**
-     *
      * @param key
      */
     public void command(TCommandKey key) {
@@ -56,7 +56,6 @@ public abstract class Command<TCommandKey, TMediatorKey, TContent> implements IE
     }
 
     /**
-     *
      * @param proxyClass
      * @param <TProxy>
      * @return

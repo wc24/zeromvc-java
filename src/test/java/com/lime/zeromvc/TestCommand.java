@@ -5,16 +5,16 @@ package com.lime.zeromvc;
  */
 public class TestCommand extends Command<CommandEnum, MediatorEnum, TestVo> {
 
-    public TestCommand(){
-
-        System.out.println("cctvcctvcctvcctvcctvcctvcctvcctv");
-
-    }
 
     @Override
     public void execute(TestVo testVo) {
 
 
+    }
 
+    @Override
+    public void init() {
+
+        System.out.println("cctvcctvcctvcctvcctvcctvcctvcctv");
     }
 }
