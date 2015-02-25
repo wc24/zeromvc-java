@@ -15,7 +15,7 @@ public class Observer<TKey> {
 
     protected Object target;
     protected Map<TKey, List<Class<? extends IExecute>>> pool;
-    protected Map<TKey, IExecute<Object, TKey, Object>> instancePool;
+    protected Map<TKey, Map<Class<? extends IExecute>, IExecute<Object, TKey, Object>>> instancePool;
 
     /**
      * 观察者
@@ -37,7 +37,7 @@ public class Observer<TKey> {
 
     protected void init() {
         pool = new HashMap<TKey, List<Class<? extends IExecute>>>();
-        instancePool = new HashMap<TKey, IExecute<Object, TKey, Object>>();
+        instancePool = new HashMap<TKey, Map<Class<? extends IExecute>, IExecute<Object, TKey, Object>>>();
     }
 
     /**
@@ -51,6 +51,7 @@ public class Observer<TKey> {
         Boolean out = false;
         if (!hasListener(type)) {
             pool.put(type, new ArrayList<Class<? extends IExecute>>());
+            instancePool.put(type, new HashMap<Class<? extends IExecute>, IExecute<Object, TKey, Object>>());
         }
         if (!hasListener(type, classType)) {
             pool.get(type).add(classType);
@@ -138,12 +139,12 @@ public class Observer<TKey> {
         if (hasListener(type)) {
             for (Class<? extends IExecute> classType : pool.get(type)) {
                 IExecute<Object, TKey, Object> neure;
-                if (instancePool.containsKey(type)) {
-                    neure = instancePool.get(type);
+                if (instancePool.containsKey(type) && instancePool.get(type).containsKey(classType)) {
+                    neure = instancePool.get(type).get(classType);
                     neure.execute(data);
                 } else try {
                     neure = classType.newInstance();
-                    instancePool.put(type, neure);
+                    instancePool.get(type).put(classType, neure);
                     neure.init(target, type);
                     neure.execute(data);
                     out++;
