@@ -138,16 +138,13 @@ public class Observer<TKey> {
         if (null == method || method==""){
             method="execute";
         }
-
         int out = 0;
         if (hasListener(type)) {
             for (Class classType : pool.get(type)) {
                 Object neure;
                 if (instancePool.containsKey(type) && instancePool.get(type).containsKey(classType)) {
                     neure = instancePool.get(type).get(classType);
-                    //neure.execute(data);
                     executeInvoke(classType,neure,method,data);
-
                 } else try {
                     neure = classType.newInstance();
                     instancePool.get(type).put(classType, neure);
@@ -167,21 +164,16 @@ public class Observer<TKey> {
                         e.printStackTrace();
                     }
                     executeInvoke(classType,neure,method,data);
-//                    neure.init(target, type);
-//                    neure.execute(data);
                     out++;
                 } catch (InstantiationException e) {
                     e.printStackTrace();
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
-//                } catch (NoSuchMethodException e) {
-//                    e.printStackTrace();
                 }
             }
         }
         return out;
     }
-
     private void executeInvoke(Class classType, Object neure, String method, Object data) {
         Method executeMethod;
         try {
@@ -197,7 +189,6 @@ public class Observer<TKey> {
                 }
                 executeMethod.invoke(neure,data);
             }
-
         } catch (NoSuchMethodException e) {
             System.out.println("ZeroMvcErr: " + classType.getName() + " no " + method);
         } catch (InvocationTargetException e) {

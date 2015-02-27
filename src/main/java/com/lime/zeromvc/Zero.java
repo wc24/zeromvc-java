@@ -1,5 +1,6 @@
 package com.lime.zeromvc;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -45,6 +46,7 @@ public class Zero<TCommandKey, TMediatorKey> {
         control = new Observer<TCommandKey>(this);
         view = new Observer<TMediatorKey>(this);
         model = new ProxyPool();
+        mediatorKeyGroup =new HashMap<Object, TMediatorKey>();
     }
 
     /**
