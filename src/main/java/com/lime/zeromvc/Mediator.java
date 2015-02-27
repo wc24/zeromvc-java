@@ -54,7 +54,19 @@ public abstract class Mediator<TCommandKey, TMediatorKey> {
     }
 
 
-    public void _activate() {
+    public void execute(Boolean b){
+        System.out.print(b);
+        if (b){
+            _activate();
+        }else
+        {
+            _inactivate();
+        }
+    }
+
+
+
+    private void _activate() {
         if (group != null) {
             if (zero.mediatorKeyGroup.containsKey(group)) {
                 if (zero.mediatorKeyGroup.get(group) != type) {
@@ -71,7 +83,7 @@ public abstract class Mediator<TCommandKey, TMediatorKey> {
         activate();
     }
 
-    public void _inactivate() {
+    private void _inactivate() {
         for (Proxy proxy : pool) {
             proxy.unbind(this);
         }
@@ -138,8 +150,8 @@ public abstract class Mediator<TCommandKey, TMediatorKey> {
      * 释放不会立即生效！
      */
     public void dispose() {
-        zero.view.dispose(type);
         zero.inactivate(type);
+        zero.view.dispose(type);
     }
 
     /**

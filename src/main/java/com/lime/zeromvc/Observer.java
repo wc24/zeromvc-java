@@ -4,16 +4,28 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.lang.reflect.Method;
 
+
+class ObserverMethod {
+    public Class owner;
+    public String methodName;
+
+    public ObserverMethod(Class owner, String methodName) {
+        this.owner = owner;
+        this.methodName = methodName;
+    }
+}
+
 /**
  * 反射式 观察者
  * 在观察者对象上添加事件标识和对应要执行的类，一个标识可以对应多个类，一个类可以添加进不对的标识。当观察者派发通知时 通知标识所对应的类所会被实例化，初始化并且执行execute方法！若执行释放，第二接收到相应通知将会构建新的对象！否则只会产生一个识标只会产生一个实例并且常在内存！
  *
  * @param <TKey>
  */
+
 public class Observer<TKey> {
 
     protected Object target;
-    protected Map<TKey, List<Class>> pool;
+    protected Map<TKey, List<ObserverMethod>> pool;
     protected Map<TKey, Map<Class, Object>> instancePool;
 
     /**
@@ -35,7 +47,7 @@ public class Observer<TKey> {
     }
 
     protected void init() {
-        pool = new HashMap<TKey, List<Class>>();
+        pool = new HashMap<TKey, List<ObserverMethod>>();
         instancePool = new HashMap<TKey, Map<Class, Object>>();
     }
 
@@ -47,13 +59,24 @@ public class Observer<TKey> {
      * @return
      */
     public boolean addListener(TKey type, Class classType) {
+        return addListener(type, classType, "execute");
+    }
+
+    /**
+     * 添加监听
+     *
+     * @param type      监听标识
+     * @param classType 监听执行类的反射对象(如 Object.class)
+     * @return
+     */
+    public boolean addListener(TKey type, Class classType, String methodName) {
         Boolean out = false;
         if (!hasListener(type)) {
-            pool.put(type, new ArrayList<Class>());
+            pool.put(type, new ArrayList<ObserverMethod>());
             instancePool.put(type, new HashMap<Class, Object>());
         }
-        if (!hasListener(type, classType)) {
-            pool.get(type).add(classType);
+        if (!hasListener(type, classType, methodName)) {
+            pool.get(type).add(new ObserverMethod(classType, methodName));
             out = true;
         }
         return out;
@@ -107,8 +130,18 @@ public class Observer<TKey> {
      * @param classType 监听执行类的反射对象(如 Object.class)
      * @return 是否存在监听
      */
-    public boolean hasListener(TKey type, Class classType) {
-        return pool.containsKey(type) && pool.get(type).contains(classType);
+    public boolean hasListener(TKey type, Class classType, String methodName) {
+//        return pool.containsKey(type) && pool.get(type).containsKey(classType);
+        Boolean out = false;
+        if (pool.containsKey(type)) {
+            for (ObserverMethod observerMethod : pool.get(type)) {
+                if(observerMethod.owner==classType && methodName==observerMethod.methodName){
+                    out = true;
+                    break;
+                }
+            }
+        }
+        return out;
     }
 
     /**
@@ -119,7 +152,8 @@ public class Observer<TKey> {
      */
     public boolean dispose(TKey type) {
         if (instancePool.containsKey(type)) {
-            instancePool.remove(type);
+//            instancePool.remove(type);
+            instancePool.put(type, new HashMap<Class, Object>());
             return true;
         } else {
             return false;
@@ -130,32 +164,30 @@ public class Observer<TKey> {
      * 通知
      *
      * @param type 监听标识
-     * @param method 调用方法名
      * @param data 监听标识
      * @return 执行次数
      */
-    public int notify(TKey type,String method,Object data) {
-        if (null == method || method==""){
-            method="execute";
-        }
+    public int notify(TKey type, Object data) {
         int out = 0;
         if (hasListener(type)) {
-            for (Class classType : pool.get(type)) {
+            for (ObserverMethod observerMethod : pool.get(type)) {
+                Class classType = observerMethod.owner;
+                String methodName = observerMethod.methodName;
                 Object neure;
                 if (instancePool.containsKey(type) && instancePool.get(type).containsKey(classType)) {
                     neure = instancePool.get(type).get(classType);
-                    executeInvoke(classType,neure,method,data);
+                    executeInvoke(classType, neure, methodName, data);
                 } else try {
                     neure = classType.newInstance();
                     instancePool.get(type).put(classType, neure);
                     Method initMethod;
                     try {
-                        initMethod=classType.getMethod("init", target.getClass(), type.getClass());
-                        initMethod.invoke(neure,target, type);
+                        initMethod = classType.getMethod("init", target.getClass(), type.getClass());
+                        initMethod.invoke(neure, target, type);
                     } catch (NoSuchMethodException e) {
                         try {
-                            initMethod=classType.getMethod("init", Object.class, Object.class);
-                            initMethod.invoke(neure,target, type);
+                            initMethod = classType.getMethod("init", Object.class, Object.class);
+                            initMethod.invoke(neure, target, type);
                         } catch (NoSuchMethodException e1) {
                         } catch (InvocationTargetException e1) {
                             e1.printStackTrace();
@@ -163,7 +195,7 @@ public class Observer<TKey> {
                     } catch (InvocationTargetException e) {
                         e.printStackTrace();
                     }
-                    executeInvoke(classType,neure,method,data);
+                    executeInvoke(classType, neure, methodName, data);
                     out++;
                 } catch (InstantiationException e) {
                     e.printStackTrace();
@@ -174,20 +206,21 @@ public class Observer<TKey> {
         }
         return out;
     }
+
     private void executeInvoke(Class classType, Object neure, String method, Object data) {
         Method executeMethod;
         try {
-            if (data==null){
-                executeMethod=classType.getMethod(method);
+            if (data == null) {
+                executeMethod = classType.getMethod(method);
                 executeMethod.invoke(neure);
-            }else {
+            } else {
                 System.out.println(data.getClass().getName());
                 try {
-                    executeMethod=classType.getMethod(method, data.getClass());
+                    executeMethod = classType.getMethod(method, data.getClass());
                 } catch (NoSuchMethodException e) {
-                    executeMethod=classType.getMethod(method, Object.class);
+                    executeMethod = classType.getMethod(method, Object.class);
                 }
-                executeMethod.invoke(neure,data);
+                executeMethod.invoke(neure, data);
             }
         } catch (NoSuchMethodException e) {
             System.out.println("ZeroMvcErr: " + classType.getName() + " no " + method);
@@ -204,16 +237,7 @@ public class Observer<TKey> {
      * @param type 监听标识
      * @return 执行次数
      */
-    public int notify(TKey type,String method) {
-        return notify(type,method,null);
-    }
-    /**
-     * 通知
-     *
-     * @param type 监听标识
-     * @return 执行次数
-     */
     public int notify(TKey type) {
-        return notify(type,null,null);
+        return notify(type, null);
     }
 }

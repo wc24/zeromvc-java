@@ -55,10 +55,19 @@ public class Zero<TCommandKey, TMediatorKey> {
      * @param key          命令的枚举值
      * @param commandClass 所要添加的命令类的反射对象(如 Object.class)
      */
+    public void addCommand(TCommandKey key, Class<? extends Command> commandClass,String methodName) {
+        control.addListener(key, commandClass,methodName);
+    }
+
+    /**
+     * 添加命令
+     *
+     * @param key          命令的枚举值
+     * @param commandClass 所要添加的命令类的反射对象(如 Object.class)
+     */
     public void addCommand(TCommandKey key, Class<? extends Command> commandClass) {
         control.addListener(key, commandClass);
     }
-
     /**
      * 移除命令
      *
@@ -98,7 +107,7 @@ public class Zero<TCommandKey, TMediatorKey> {
      * @param key 中介的枚举值
      */
     public void inactivate(TMediatorKey key) {
-        view.notify(key,"_inactivate");
+        view.notify(key,false);
     }
 
     /**
@@ -107,7 +116,7 @@ public class Zero<TCommandKey, TMediatorKey> {
      * @param key 中介的枚举值
      */
     public void activate(TMediatorKey key) {
-        view.notify(key,"_activate");
+        view.notify(key,true);
 
     }
 
@@ -118,7 +127,7 @@ public class Zero<TCommandKey, TMediatorKey> {
      * @param date 派发命令的参数数据
      */
     public void command(TCommandKey key, Object date) {
-        control.notify(key,null,date);
+        control.notify(key,date);
 
     }
 
