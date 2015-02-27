@@ -1,9 +1,8 @@
 package com.lime.zeromvc;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
+import java.lang.reflect.Method;
 
 /**
  * 反射式 观察者
@@ -14,8 +13,8 @@ import java.util.Map;
 public class Observer<TKey> {
 
     protected Object target;
-    protected Map<TKey, List<Class<? extends IExecute>>> pool;
-    protected Map<TKey, Map<Class<? extends IExecute>, IExecute<Object, TKey, Object>>> instancePool;
+    protected Map<TKey, List<Class>> pool;
+    protected Map<TKey, Map<Class, Object>> instancePool;
 
     /**
      * 观察者
@@ -36,8 +35,8 @@ public class Observer<TKey> {
     }
 
     protected void init() {
-        pool = new HashMap<TKey, List<Class<? extends IExecute>>>();
-        instancePool = new HashMap<TKey, Map<Class<? extends IExecute>, IExecute<Object, TKey, Object>>>();
+        pool = new HashMap<TKey, List<Class>>();
+        instancePool = new HashMap<TKey, Map<Class, Object>>();
     }
 
     /**
@@ -47,11 +46,11 @@ public class Observer<TKey> {
      * @param classType 监听执行类的反射对象(如 Object.class)
      * @return
      */
-    public boolean addListener(TKey type, Class<? extends IExecute> classType) {
+    public boolean addListener(TKey type, Class classType) {
         Boolean out = false;
         if (!hasListener(type)) {
-            pool.put(type, new ArrayList<Class<? extends IExecute>>());
-            instancePool.put(type, new HashMap<Class<? extends IExecute>, IExecute<Object, TKey, Object>>());
+            pool.put(type, new ArrayList<Class>());
+            instancePool.put(type, new HashMap<Class, Object>());
         }
         if (!hasListener(type, classType)) {
             pool.get(type).add(classType);
@@ -67,7 +66,7 @@ public class Observer<TKey> {
      * @param classType 监听执行类的反射对象(如 Object.class)
      * @return
      */
-    public boolean removeListener(TKey type, Class<? extends IExecute> classType) {
+    public boolean removeListener(TKey type, Class classType) {
         Boolean out = false;
         if (hasListener(type)) {
             out = pool.get(type).remove(classType);
@@ -108,7 +107,7 @@ public class Observer<TKey> {
      * @param classType 监听执行类的反射对象(如 Object.class)
      * @return 是否存在监听
      */
-    public boolean hasListener(TKey type, Class<? extends IExecute> classType) {
+    public boolean hasListener(TKey type, Class classType) {
         return pool.containsKey(type) && pool.get(type).contains(classType);
     }
 
@@ -131,31 +130,81 @@ public class Observer<TKey> {
      * 通知
      *
      * @param type 监听标识
+     * @param method 调用方法名
      * @param data 监听标识
      * @return 执行次数
      */
-    public int notify(TKey type, Object data) {
+    public int notify(TKey type,String method,Object data) {
+        if (null == method || method==""){
+            method="execute";
+        }
+
         int out = 0;
         if (hasListener(type)) {
-            for (Class<? extends IExecute> classType : pool.get(type)) {
-                IExecute<Object, TKey, Object> neure;
+            for (Class classType : pool.get(type)) {
+                Object neure;
                 if (instancePool.containsKey(type) && instancePool.get(type).containsKey(classType)) {
                     neure = instancePool.get(type).get(classType);
-                    neure.execute(data);
+                    //neure.execute(data);
+                    executeInvoke(classType,neure,method,data);
+
                 } else try {
                     neure = classType.newInstance();
                     instancePool.get(type).put(classType, neure);
-                    neure.init(target, type);
-                    neure.execute(data);
+                    Method initMethod;
+                    try {
+                        initMethod=classType.getMethod("init", target.getClass(), type.getClass());
+                        initMethod.invoke(neure,target, type);
+                    } catch (NoSuchMethodException e) {
+                        try {
+                            initMethod=classType.getMethod("init", Object.class, Object.class);
+                            initMethod.invoke(neure,target, type);
+                        } catch (NoSuchMethodException e1) {
+                        } catch (InvocationTargetException e1) {
+                            e1.printStackTrace();
+                        }
+                    } catch (InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
+                    executeInvoke(classType,neure,method,data);
+//                    neure.init(target, type);
+//                    neure.execute(data);
                     out++;
                 } catch (InstantiationException e) {
                     e.printStackTrace();
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
+//                } catch (NoSuchMethodException e) {
+//                    e.printStackTrace();
                 }
             }
         }
         return out;
+    }
+
+    private void executeInvoke(Class classType, Object neure, String method, Object data) {
+        Method executeMethod;
+        try {
+            if (data==null){
+                executeMethod=classType.getMethod(method);
+                executeMethod.invoke(neure);
+            }else {
+                System.out.println(data.getClass().getName());
+                try {
+                    executeMethod=classType.getMethod(method, data.getClass());
+                } catch (NoSuchMethodException e) {
+                    executeMethod=classType.getMethod(method, Object.class);
+                }
+                executeMethod.invoke(neure,data);
+            }
+
+        } catch (NoSuchMethodException e) {
+            System.out.println("ZeroMvcErr: " + classType.getName() + " no " + method);
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -164,7 +213,16 @@ public class Observer<TKey> {
      * @param type 监听标识
      * @return 执行次数
      */
+    public int notify(TKey type,String method) {
+        return notify(type,method,null);
+    }
+    /**
+     * 通知
+     *
+     * @param type 监听标识
+     * @return 执行次数
+     */
     public int notify(TKey type) {
-        return notify(type, null);
+        return notify(type,null,null);
     }
 }

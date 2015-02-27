@@ -1,13 +1,14 @@
 package com.lime.zeromvc;
 
+import java.util.Objects;
+
 /**
  * 指令类
  *
  * @param <TCommandKey>  命令枚举类型
  * @param <TMediatorKey> 中介枚举类型
- * @param <TContent>     指令参数类型
  */
-public abstract class Command<TCommandKey, TMediatorKey, TContent> implements IExecute<Zero<TCommandKey, TMediatorKey>, TCommandKey, TContent> {
+public abstract class Command<TCommandKey, TMediatorKey>{
 
     private TCommandKey type;
     private Zero<TCommandKey, TMediatorKey> zero;
@@ -33,9 +34,9 @@ public abstract class Command<TCommandKey, TMediatorKey, TContent> implements IE
      * @param zero
      * @param type
      */
-    public void init(Zero<TCommandKey, TMediatorKey> zero, TCommandKey type) {
-        this.zero = zero;
-        this.type = type;
+    public void init(Object zero, Object type) {
+        this.zero = (Zero<TCommandKey, TMediatorKey>) zero;
+        this.type = (TCommandKey) type;
         init();
     }
 

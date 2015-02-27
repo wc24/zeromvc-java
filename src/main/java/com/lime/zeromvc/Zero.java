@@ -96,7 +96,7 @@ public class Zero<TCommandKey, TMediatorKey> {
      * @param key 中介的枚举值
      */
     public void inactivate(TMediatorKey key) {
-        view.notify(key, false);
+        view.notify(key,"_inactivate");
     }
 
     /**
@@ -105,7 +105,7 @@ public class Zero<TCommandKey, TMediatorKey> {
      * @param key 中介的枚举值
      */
     public void activate(TMediatorKey key) {
-        view.notify(key, true);
+        view.notify(key,"_activate");
 
     }
 
@@ -116,7 +116,7 @@ public class Zero<TCommandKey, TMediatorKey> {
      * @param date 派发命令的参数数据
      */
     public void command(TCommandKey key, Object date) {
-        control.notify(key, date);
+        control.notify(key,null,date);
 
     }
 
@@ -126,7 +126,7 @@ public class Zero<TCommandKey, TMediatorKey> {
      * @param key 命令的枚举值
      */
     public void command(TCommandKey key) {
-        control.notify(key);
+        control.notify(key,null);
 
     }
 }

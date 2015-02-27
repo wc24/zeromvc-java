@@ -3,10 +3,9 @@ package com.lime.zeromvc;
 /**
  * Created by linming on 14-10-25.
  */
-public class TestCommand extends Command<CommandEnum, MediatorEnum, TestVo> {
+public class TestCommand extends Command<CommandEnum, MediatorEnum> {
 
 
-    @Override
     public void execute(TestVo testVo) {
 
 

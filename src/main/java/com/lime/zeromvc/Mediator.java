@@ -14,7 +14,7 @@ import java.util.List;
  * @param <TMediatorKey> 中介枚举类型
  */
 
-public abstract class Mediator<TCommandKey, TMediatorKey> implements IExecute<Zero<TCommandKey, TMediatorKey>, TMediatorKey, Boolean> {
+public abstract class Mediator<TCommandKey, TMediatorKey> {
 
     /**
      * 将中介进行分组，同组的中介只会有一个在激活状态
@@ -53,35 +53,32 @@ public abstract class Mediator<TCommandKey, TMediatorKey> implements IExecute<Ze
         return zero.model.getProxy(proxyClass);
     }
 
-    /**
-     * 中介类
-     *
-     * @param isActive
-     */
-    @Override
-    public void execute(Boolean isActive) {
-        if (isActive) {
-            activate();
-            if (group != null) {
-                if (zero.mediatorKeyGroup.containsKey(group)) {
-                    if (zero.mediatorKeyGroup.get(group) != type) {
-                        zero.inactivate(zero.mediatorKeyGroup.get(group));
-                        zero.mediatorKeyGroup.put(group, type);
-                    }
-                } else {
+
+    public void _activate() {
+        if (group != null) {
+            if (zero.mediatorKeyGroup.containsKey(group)) {
+                if (zero.mediatorKeyGroup.get(group) != type) {
+                    zero.inactivate(zero.mediatorKeyGroup.get(group));
                     zero.mediatorKeyGroup.put(group, type);
                 }
+            } else {
+                zero.mediatorKeyGroup.put(group, type);
             }
-        } else {
-            for (Proxy proxy : pool) {
-                proxy.unbind(this);
-            }
-            if (group != null && zero.mediatorKeyGroup.containsKey(group) && zero.mediatorKeyGroup.get(group) != type) {
-                zero.mediatorKeyGroup.remove(type);
-            }
-            inactivate();
         }
+        for (Proxy proxy : pool) {
+            proxy.bind(this);
+        }
+        activate();
+    }
 
+    public void _inactivate() {
+        for (Proxy proxy : pool) {
+            proxy.unbind(this);
+        }
+        if (group != null && zero.mediatorKeyGroup.containsKey(group) && zero.mediatorKeyGroup.get(group) != type) {
+            zero.mediatorKeyGroup.remove(type);
+        }
+        inactivate();
     }
 
     /**
@@ -90,9 +87,9 @@ public abstract class Mediator<TCommandKey, TMediatorKey> implements IExecute<Ze
      * @param zero 对主类的引用
      * @param type 实例化对应识标
      */
-    public void init(Zero<TCommandKey, TMediatorKey> zero, TMediatorKey type) {
-        this.zero = zero;
-        this.type = type;
+    public void init(Object zero, Object type) {
+        this.zero = (Zero<TCommandKey, TMediatorKey>) zero;
+        this.type = (TMediatorKey) type;
     }
 
     /**
@@ -120,8 +117,19 @@ public abstract class Mediator<TCommandKey, TMediatorKey> implements IExecute<Ze
      * @param proxy 添加所要关注的数据代理！
      */
     public void addProxy(Proxy proxy) {
-        proxy.bind(this);
+//        proxy.bind(this);
         pool.add(proxy);
+    }
+
+    /**
+     * 删除所要关注的数据代理！
+     * 当数据代理进行更新时会执行 子类的update;
+     * updtae方法 支持重载
+     *
+     * @param proxy 删除所要关注的数据代理！
+     */
+    public void removeProxy(Proxy proxy) {
+        pool.remove(proxy);
     }
 
     /**
