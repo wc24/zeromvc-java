@@ -214,7 +214,7 @@ public class Observer<TKey> {
                 executeMethod = classType.getMethod(method);
                 executeMethod.invoke(neure);
             } else {
-                System.out.println(data.getClass().getName());
+//                System.out.println(data.getClass().getName());
                 try {
                     executeMethod = classType.getMethod(method, data.getClass());
                 } catch (NoSuchMethodException e) {
@@ -223,7 +223,11 @@ public class Observer<TKey> {
                 executeMethod.invoke(neure, data);
             }
         } catch (NoSuchMethodException e) {
-            System.out.println("ZeroMvcErr: " + classType.getName() + " no " + method);
+            if (data == null) {
+                System.out.println("ZeroMvcErr: " + classType.getName() + " no " + method);
+            } else {
+                System.out.println("ZeroMvcErr: " + classType.getName() + " no " + method+ " parameterType " +data.getClass().getName());
+            }
         } catch (InvocationTargetException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {

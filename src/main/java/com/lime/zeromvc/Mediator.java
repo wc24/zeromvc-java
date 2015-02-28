@@ -22,6 +22,7 @@ public abstract class Mediator<TCommandKey, TMediatorKey> {
     private Object group;
     private TMediatorKey type;
     private Zero<TCommandKey, TMediatorKey> zero;
+    protected abstract void init();
 
     private List<Proxy> pool;
 
@@ -55,7 +56,6 @@ public abstract class Mediator<TCommandKey, TMediatorKey> {
 
 
     public void execute(Boolean b){
-        System.out.print(b);
         if (b){
             _activate();
         }else
@@ -102,6 +102,7 @@ public abstract class Mediator<TCommandKey, TMediatorKey> {
     public void init(Object zero, Object type) {
         this.zero = (Zero<TCommandKey, TMediatorKey>) zero;
         this.type = (TMediatorKey) type;
+        init();
     }
 
     /**
