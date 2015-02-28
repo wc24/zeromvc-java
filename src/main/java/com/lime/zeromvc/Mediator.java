@@ -109,17 +109,10 @@ public abstract class Mediator<TCommandKey, TMediatorKey> {
      * 派发命令
      *
      * @param key  派发的命令识标
-     * @param date 派发的数据对象
+     * @param args 派发的数据对象
      */
-    public void command(TCommandKey key, Object date) {
-        zero.command(key, date);
-    }
-
-    /**
-     * @param key
-     */
-    public void command(TCommandKey key) {
-        zero.command(key);
+    public void command(TCommandKey key, Object... args) {
+        zero.command(key, args);
     }
 
     /**

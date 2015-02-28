@@ -26,13 +26,17 @@ public class TestMediator extends Mediator<CommandEnum,MediatorEnum> {
         System.out.println("_____________3");
     }
 
+    @Override
+    protected void init() {
+    }
+
     protected void activate() {
         testProxy = getProxy(TestProxy.class);
         test2Proxy = getProxy(Test2Proxy.class);
         addProxy(testProxy);
         addProxy(test2Proxy);
         command(CommandEnum.TEST, new TestVo());
-dispose();
+        dispose();
     }
 
     @Override

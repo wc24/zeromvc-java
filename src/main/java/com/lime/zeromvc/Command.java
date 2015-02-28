@@ -1,23 +1,21 @@
 package com.lime.zeromvc;
 
-import java.util.Objects;
-
 /**
  * 指令类
  *
  * @param <TCommandKey>  命令枚举类型
  * @param <TMediatorKey> 中介枚举类型
  */
-public abstract class Command<TCommandKey, TMediatorKey>{
+public abstract class Command<TCommandKey, TMediatorKey> {
 
     private TCommandKey type;
     private Zero<TCommandKey, TMediatorKey> zero;
+
     protected abstract void init();
 
     protected void activate(TMediatorKey key) {
         zero.activate(key);
     }
-
 
     protected void inactivate(TMediatorKey key) {
         zero.inactivate(key);
@@ -40,30 +38,15 @@ public abstract class Command<TCommandKey, TMediatorKey>{
         init();
     }
 
-
     /**
      * @param key
-     * @param date
+     * @param args
      */
-    public void command(TCommandKey key, Object date) {
-        zero.command(key, date);
+    public void command(TCommandKey key, Object... args) {
+        zero.command(key, args);
     }
 
-    /**
-     * @param key
-     */
-    public void command(TCommandKey key) {
-        zero.command(key);
-    }
-
-    /**
-     * @param proxyClass
-     * @param <TProxy>
-     * @return
-     */
     public <TProxy extends Proxy> TProxy getProxy(Class<TProxy> proxyClass) {
         return zero.model.getProxy(proxyClass);
     }
-    
-
 }

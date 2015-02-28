@@ -8,7 +8,7 @@ public class TestCommand extends Command<CommandEnum, MediatorEnum> {
 
     public void execute(TestVo testVo) {
 
-
+        System.out.println(testVo);
     }
 
     @Override

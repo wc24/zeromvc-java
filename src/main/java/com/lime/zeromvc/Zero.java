@@ -124,20 +124,12 @@ public class Zero<TCommandKey, TMediatorKey> {
      * 派发命令
      *
      * @param key  命令的枚举值
-     * @param date 派发命令的参数数据
+     * @param args 派发命令的参数数据
      */
-    public void command(TCommandKey key, Object date) {
-        control.notify(key,date);
+    public void command(TCommandKey key, Object... args) {
+        control.notify(key,args);
 
     }
 
-    /**
-     * 派发命令
-     *
-     * @param key 命令的枚举值
-     */
-    public void command(TCommandKey key) {
-        control.notify(key,null);
 
-    }
 }

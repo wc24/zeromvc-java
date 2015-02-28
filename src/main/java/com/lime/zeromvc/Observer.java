@@ -1,19 +1,16 @@
 package com.lime.zeromvc;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 为了效率不支持重载
+ */
 
 
-class ObserverMethod {
-    public Class owner;
-    public String methodName;
-
-    public ObserverMethod(Class owner, String methodName) {
-        this.owner = owner;
-        this.methodName = methodName;
-    }
-}
 
 /**
  * 反射式 观察者
@@ -25,7 +22,7 @@ class ObserverMethod {
 public class Observer<TKey> {
 
     protected Object target;
-    protected Map<TKey, List<ObserverMethod>> pool;
+    protected Map<TKey, List<ObFunction>> pool;
     protected Map<TKey, Map<Class, Object>> instancePool;
 
     /**
@@ -47,7 +44,7 @@ public class Observer<TKey> {
     }
 
     protected void init() {
-        pool = new HashMap<TKey, List<ObserverMethod>>();
+        pool = new HashMap<TKey, List<ObFunction>>();
         instancePool = new HashMap<TKey, Map<Class, Object>>();
     }
 
@@ -72,11 +69,11 @@ public class Observer<TKey> {
     public boolean addListener(TKey type, Class classType, String methodName) {
         Boolean out = false;
         if (!hasListener(type)) {
-            pool.put(type, new ArrayList<ObserverMethod>());
+            pool.put(type, new ArrayList<ObFunction>());
             instancePool.put(type, new HashMap<Class, Object>());
         }
         if (!hasListener(type, classType, methodName)) {
-            pool.get(type).add(new ObserverMethod(classType, methodName));
+            pool.get(type).add(new ObFunction(classType, methodName));
             out = true;
         }
         return out;
@@ -134,8 +131,8 @@ public class Observer<TKey> {
 //        return pool.containsKey(type) && pool.get(type).containsKey(classType);
         Boolean out = false;
         if (pool.containsKey(type)) {
-            for (ObserverMethod observerMethod : pool.get(type)) {
-                if(observerMethod.owner==classType && methodName==observerMethod.methodName){
+            for (ObFunction obFunction : pool.get(type)) {
+                if(obFunction.owner==classType && methodName==obFunction.methodName){
                     out = true;
                     break;
                 }
@@ -160,88 +157,38 @@ public class Observer<TKey> {
         }
     }
 
+
     /**
      * 通知
-     *
      * @param type 监听标识
-     * @param data 监听标识
+     * @param args
      * @return 执行次数
      */
-    public int notify(TKey type, Object data) {
+    public int notify(TKey type, Object... args){
         int out = 0;
         if (hasListener(type)) {
-            for (ObserverMethod observerMethod : pool.get(type)) {
-                Class classType = observerMethod.owner;
-                String methodName = observerMethod.methodName;
-                Object neure;
+            for (ObFunction obFunction : pool.get(type)) {
+                Class classType = obFunction.owner;
+                String methodName = obFunction.methodName;
+                Object neure = null;
                 if (instancePool.containsKey(type) && instancePool.get(type).containsKey(classType)) {
                     neure = instancePool.get(type).get(classType);
-                    executeInvoke(classType, neure, methodName, data);
-                } else try {
-                    neure = classType.newInstance();
-                    instancePool.get(type).put(classType, neure);
-                    Method initMethod;
+                    obFunction.call(neure,args);
+                } else {
                     try {
-                        initMethod = classType.getMethod("init", target.getClass(), type.getClass());
+                        neure = classType.newInstance();
+                        Method initMethod = null;
+                        initMethod = classType.getMethod("init", Object.class, Object.class);
                         initMethod.invoke(neure, target, type);
-                    } catch (NoSuchMethodException e) {
-                        try {
-                            initMethod = classType.getMethod("init", Object.class, Object.class);
-                            initMethod.invoke(neure, target, type);
-                        } catch (NoSuchMethodException e1) {
-                        } catch (InvocationTargetException e1) {
-                            e1.printStackTrace();
-                        }
-                    } catch (InvocationTargetException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    executeInvoke(classType, neure, methodName, data);
+                    instancePool.get(type).put(classType, neure);
                     out++;
-                } catch (InstantiationException e) {
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+                    obFunction.call(neure,args);
                 }
             }
         }
         return out;
-    }
-
-    private void executeInvoke(Class classType, Object neure, String method, Object data) {
-        Method executeMethod;
-        try {
-            if (data == null) {
-                executeMethod = classType.getMethod(method);
-                executeMethod.invoke(neure);
-            } else {
-//                System.out.println(data.getClass().getName());
-                try {
-                    executeMethod = classType.getMethod(method, data.getClass());
-                } catch (NoSuchMethodException e) {
-                    executeMethod = classType.getMethod(method, Object.class);
-                }
-                executeMethod.invoke(neure, data);
-            }
-        } catch (NoSuchMethodException e) {
-            if (data == null) {
-                System.out.println("ZeroMvcErr: " + classType.getName() + " no " + method);
-            } else {
-                System.out.println("ZeroMvcErr: " + classType.getName() + " no " + method+ " parameterType " +data.getClass().getName());
-            }
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * 通知
-     *
-     * @param type 监听标识
-     * @return 执行次数
-     */
-    public int notify(TKey type) {
-        return notify(type, null);
     }
 }
