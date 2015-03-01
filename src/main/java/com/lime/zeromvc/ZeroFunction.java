@@ -23,7 +23,7 @@ public class ZeroFunction {
         }
         if (method == null) {
             System.out.print("[ZeroMvcErrors]------------>");
-            System.out.println(methodName + "No Such Method");
+            System.out.println(methodName + " No Such Method");
         }
     }
     public void call(Object instance, Object... args) {
