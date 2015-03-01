@@ -8,11 +8,6 @@ import java.util.Map;
 
 /**
  * 为了效率不支持重载
- */
-
-
-
-/**
  * 反射式 观察者
  * 在观察者对象上添加事件标识和对应要执行的类，一个标识可以对应多个类，一个类可以添加进不对的标识。当观察者派发通知时 通知标识所对应的类所会被实例化，初始化并且执行execute方法！若执行释放，第二接收到相应通知将会构建新的对象！否则只会产生一个识标只会产生一个实例并且常在内存！
  *
@@ -22,7 +17,7 @@ import java.util.Map;
 public class Observer<TKey> {
 
     protected Object target;
-    protected Map<TKey, List<ObFunction>> pool;
+    protected Map<TKey, List<ZeroFunction>> pool;
     protected Map<TKey, Map<Class, Object>> instancePool;
 
     /**
@@ -44,7 +39,7 @@ public class Observer<TKey> {
     }
 
     protected void init() {
-        pool = new HashMap<TKey, List<ObFunction>>();
+        pool = new HashMap<TKey, List<ZeroFunction>>();
         instancePool = new HashMap<TKey, Map<Class, Object>>();
     }
 
@@ -69,11 +64,11 @@ public class Observer<TKey> {
     public boolean addListener(TKey type, Class classType, String methodName) {
         Boolean out = false;
         if (!hasListener(type)) {
-            pool.put(type, new ArrayList<ObFunction>());
+            pool.put(type, new ArrayList<ZeroFunction>());
             instancePool.put(type, new HashMap<Class, Object>());
         }
         if (!hasListener(type, classType, methodName)) {
-            pool.get(type).add(new ObFunction(classType, methodName));
+            pool.get(type).add(new ZeroFunction(classType, methodName));
             out = true;
         }
         return out;
@@ -131,8 +126,8 @@ public class Observer<TKey> {
 //        return pool.containsKey(type) && pool.get(type).containsKey(classType);
         Boolean out = false;
         if (pool.containsKey(type)) {
-            for (ObFunction obFunction : pool.get(type)) {
-                if(obFunction.owner==classType && methodName==obFunction.methodName){
+            for (ZeroFunction zeroFunction : pool.get(type)) {
+                if(zeroFunction.owner==classType && methodName==zeroFunction.methodName){
                     out = true;
                     break;
                 }
@@ -167,13 +162,13 @@ public class Observer<TKey> {
     public int notify(TKey type, Object... args){
         int out = 0;
         if (hasListener(type)) {
-            for (ObFunction obFunction : pool.get(type)) {
-                Class classType = obFunction.owner;
-                String methodName = obFunction.methodName;
+            for (ZeroFunction zeroFunction : pool.get(type)) {
+                Class classType = zeroFunction.owner;
+                String methodName = zeroFunction.methodName;
                 Object neure = null;
                 if (instancePool.containsKey(type) && instancePool.get(type).containsKey(classType)) {
                     neure = instancePool.get(type).get(classType);
-                    obFunction.call(neure,args);
+                    zeroFunction.call(neure,args);
                 } else {
                     try {
                         neure = classType.newInstance();
@@ -185,7 +180,7 @@ public class Observer<TKey> {
                     }
                     instancePool.get(type).put(classType, neure);
                     out++;
-                    obFunction.call(neure,args);
+                    zeroFunction.call(neure,args);
                 }
             }
         }

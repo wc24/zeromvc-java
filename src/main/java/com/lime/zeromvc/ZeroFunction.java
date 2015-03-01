@@ -5,12 +5,12 @@ import java.lang.reflect.Method;
 /**
  * Created by linming on 15-3-1.
  */
-public class ObFunction {
+public class ZeroFunction {
     public Method method;
     public Class owner;
     public String methodName;
 
-    public ObFunction(Class owner, String methodName) {
+    public ZeroFunction(Class owner, String methodName) {
         this.owner = owner;
         this.methodName = methodName;
         this.method = null;

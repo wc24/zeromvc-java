@@ -130,6 +130,4 @@ public class Zero<TCommandKey, TMediatorKey> {
         control.notify(key,args);
 
     }
-
-
 }
