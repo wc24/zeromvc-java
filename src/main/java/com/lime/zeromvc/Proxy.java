@@ -19,11 +19,24 @@ public class Proxy {
     /**
      * 更新数据，用于通知中介
      */
+    public <TType> void update(TType type) {
+        for (Mediator mediator : pool) {
+            try {
+                Method method = mediator.getClass().getMethod("update", this.getClass(),type.getClass());
+                method.invoke(mediator,this,type);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    /**
+     * 更新数据，用于通知中介
+     */
     public void update() {
         for (Mediator mediator : pool) {
             try {
                 Method method = mediator.getClass().getMethod("update", this.getClass());
-                method.invoke(mediator, this);
+                method.invoke(mediator,this);
             } catch (NoSuchMethodException e) {
                 mediator.update(this);
             } catch (InvocationTargetException e) {
@@ -32,9 +45,7 @@ public class Proxy {
                 e.printStackTrace();
             }
         }
-
     }
-
     /**
      * 绑定中介！中介关注时调用的方法
      * 不需要手机调用

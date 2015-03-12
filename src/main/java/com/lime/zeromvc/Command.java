@@ -8,8 +8,8 @@ package com.lime.zeromvc;
  */
 public abstract class Command<TCommandKey, TMediatorKey> {
 
-    private TCommandKey type;
-    private Zero<TCommandKey, TMediatorKey> zero;
+    protected TCommandKey type;
+    protected Zero<TCommandKey, TMediatorKey> zero;
 
     protected abstract void init();
 

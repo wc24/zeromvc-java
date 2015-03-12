@@ -19,12 +19,11 @@ public abstract class Mediator<TCommandKey, TMediatorKey> {
     /**
      * 将中介进行分组，同组的中介只会有一个在激活状态
      */
-    private Object group;
-    private TMediatorKey type;
-    private Zero<TCommandKey, TMediatorKey> zero;
+    protected Object group;
+    protected TMediatorKey type;
+    protected Zero<TCommandKey, TMediatorKey> zero;
     protected abstract void init();
-
-    private List<Proxy> pool;
+    protected List<Proxy> pool;
 
     /**
      * 中介类！

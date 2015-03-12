@@ -130,4 +130,14 @@ public class Zero<TCommandKey, TMediatorKey> {
         control.notify(key,args);
 
     }
+
+    /**
+     * 释放
+     *
+     */
+    public void dispose() {
+        control=null;
+        view=null;
+        model=null;
+    }
 }

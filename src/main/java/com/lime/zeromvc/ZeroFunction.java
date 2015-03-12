@@ -1,5 +1,6 @@
 package com.lime.zeromvc;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -26,15 +27,11 @@ public class ZeroFunction {
             System.out.println(methodName + " No Such Method");
         }
     }
-    public void call(Object instance, Object... args) {
-        try {
-            if (args.length==0){
-                method.invoke(instance);
-            }else {
-                method.invoke(instance, args);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+    public void call(Object instance, Object... args) throws InvocationTargetException, IllegalAccessException {
+        if (args.length==0){
+            method.invoke(instance);
+        }else {
+            method.invoke(instance, args);
         }
     }
 }
